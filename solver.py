@@ -267,6 +267,10 @@ class JigsawCluster:
             self.id_to_pos[pid] = (new_r, new_c)
 
 def solve_jigsaw_greedy(score_matrix, num_pieces):
+    length = num_pieces ** 0.5
+    min_row, min_col = 0, 0
+    max_row, max_col = 0, 0
+
     clusters = {pid: JigsawCluster(pid) for pid in range(num_pieces)}
     piece_to_cluster = {pid: pid for pid in range(num_pieces)}
     
@@ -309,7 +313,16 @@ def solve_jigsaw_greedy(score_matrix, num_pieces):
         
         shift_r = target_r2 - r2_local
         shift_c = target_c2 - c2_local
-        
+
+        if ((max(max_row, shift_r) - min(min_row, shift_r) + 1 > length) or
+                (max(max_col, shift_c) - min(min_col, shift_c) + 1 > length)):
+            continue
+        else:
+            max_row = max(max_row, shift_r)
+            min_row = min(min_row, shift_r)
+            max_col = max(max_col, shift_c)
+            min_col = min(min_col, shift_c)
+
         if cluster1.is_compatible(cluster2, shift_r, shift_c):
             cluster1.merge(cluster2, shift_r, shift_c)
             for pid in clusters[c2_id].id_to_pos:
