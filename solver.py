@@ -194,7 +194,7 @@ def calculate_all_metrics(all_strips):
     norm_corr = normalize_correlation(corr_mat)
     norm_grad = normalize_gradient(grad_mat)
     
-    weights = {'ssd': 0.2, 'corr': 0.8, 'grad': 0}
+    weights = {'ssd': 0.9, 'corr': 0.05, 'grad': 0.05}
     combined = calculate_composite_score({
         'ssd': norm_ssd,
         'corr': norm_corr,

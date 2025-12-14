@@ -9,8 +9,8 @@ import solver_new
 
 def main():
     # 1. Configuration
-    image_path = r"puzzles\Gravity Falls\puzzle_4x4\55.jpg"
-    num_pieces = 16 # 4x4 grid
+    image_path = r"puzzles\Gravity Falls\puzzle_8x8\103.jpg"
+    num_pieces = 64 # 4x4 grid
     
     # 2. Load Image
     print(f"Loading image from: {image_path}")
