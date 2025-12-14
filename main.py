@@ -4,9 +4,12 @@ import matplotlib.pyplot as plt
 import solver
 import os
 
+import solver_new
+
+
 def main():
     # 1. Configuration
-    image_path = r"puzzles\Gravity Falls\puzzle_4x4\0.jpg"
+    image_path = r"puzzles\Gravity Falls\puzzle_4x4\55.jpg"
     num_pieces = 16 # 4x4 grid
     
     # 2. Load Image
@@ -31,36 +34,36 @@ def main():
     # 6. Solve
     print("Solving puzzle...")
     # The solver returns a dict: {(row, col): piece_id}
-    solution = solver.solve_jigsaw_greedy(score_matrix, num_pieces)
+    solution = solver_new.solve_greedy_newer(score_matrix, num_pieces)
     
     if not solution:
         print("Solver failed to return a solution.")
         return
         
     print("Solution found!")
-    print(solution)
     
     # 7. Reconstruct
     print("Reconstructing image...")
-    reconstructed_img = solver.reconstruct_image(solution, pieces)
-    
+
+    reconstructed_img = solver_new.reconstruct_from_cluster(solution, pieces)
+
     if reconstructed_img is not None:
         # Show Original vs Reconstructed
         plt.figure(figsize=(10, 5))
-        
+
         plt.subplot(1, 2, 1)
         plt.title("Original")
         plt.imshow(cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
         plt.axis('off')
-        
+
         plt.subplot(1, 2, 2)
         plt.title("Reconstructed")
         plt.imshow(cv2.cvtColor(reconstructed_img, cv2.COLOR_BGR2RGB))
         plt.axis('off')
-        
+
         plt.tight_layout()
         plt.show()
-        
+
         # Save result
         output_path = "reconstructed_result.png"
         cv2.imwrite(output_path, reconstructed_img)

@@ -194,7 +194,7 @@ def calculate_all_metrics(all_strips):
     norm_corr = normalize_correlation(corr_mat)
     norm_grad = normalize_gradient(grad_mat)
     
-    weights = {'ssd': 1.0, 'corr': 1.0, 'grad': 1.0}
+    weights = {'ssd': 0.2, 'corr': 0.8, 'grad': 0}
     combined = calculate_composite_score({
         'ssd': norm_ssd,
         'corr': norm_corr,
@@ -267,10 +267,6 @@ class JigsawCluster:
             self.id_to_pos[pid] = (new_r, new_c)
 
 def solve_jigsaw_greedy(score_matrix, num_pieces):
-    length = num_pieces ** 0.5
-    min_row, min_col = 0, 0
-    max_row, max_col = 0, 0
-
     clusters = {pid: JigsawCluster(pid) for pid in range(num_pieces)}
     piece_to_cluster = {pid: pid for pid in range(num_pieces)}
     
@@ -313,15 +309,6 @@ def solve_jigsaw_greedy(score_matrix, num_pieces):
         
         shift_r = target_r2 - r2_local
         shift_c = target_c2 - c2_local
-
-        if ((max(max_row, shift_r) - min(min_row, shift_r) + 1 > length) or
-                (max(max_col, shift_c) - min(min_col, shift_c) + 1 > length)):
-            continue
-        else:
-            max_row = max(max_row, shift_r)
-            min_row = min(min_row, shift_r)
-            max_col = max(max_col, shift_c)
-            min_col = min(min_col, shift_c)
 
         if cluster1.is_compatible(cluster2, shift_r, shift_c):
             cluster1.merge(cluster2, shift_r, shift_c)
