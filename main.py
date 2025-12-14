@@ -6,15 +6,15 @@ import os
 
 def main():
     # 1. Configuration
-    image_path = r"puzzles\Gravity Falls\puzzle_4x4\0.jpg"
-    num_pieces = 16 # 4x4 grid
+    image_path = r"puzzles\Gravity Falls\puzzle_4x4\3.jpg"
+    num_pieces = 16 # 8x8 grid
     
     # 2. Load Image
     print(f"Loading image from: {image_path}")
     original_image = solver.readImage(image_path)
     if original_image is None:
         print("Error: Could not load image.")
-        return
+        return  
 
     # 3. Divide into pieces
     print(f"Dividing image into {num_pieces} pieces...")

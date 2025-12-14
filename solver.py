@@ -166,6 +166,7 @@ def calculate_all_metrics(all_strips):
     Returns composite score matrix.
     Index i = Piece_Idx * 4 + Side_Idx
     """
+
     num_pieces = len(all_strips)
     num_sides = 4
     total_strips = num_pieces * num_sides
@@ -194,7 +195,7 @@ def calculate_all_metrics(all_strips):
     norm_corr = normalize_correlation(corr_mat)
     norm_grad = normalize_gradient(grad_mat)
     
-    weights = {'ssd': 1.0, 'corr': 1.0, 'grad': 1.0}
+    weights = {'ssd': .9, 'corr': .05, 'grad': .05}
     combined = calculate_composite_score({
         'ssd': norm_ssd,
         'corr': norm_corr,
@@ -267,7 +268,7 @@ class JigsawCluster:
             self.id_to_pos[pid] = (new_r, new_c)
 
 def solve_jigsaw_greedy(score_matrix, num_pieces):
-    clusters = {pid: JigsawCluster(pid) for pid in range(num_pieces)}
+    clusters = {pid: JigsawCluster(pid) for pid in range(num_pieces)} 
     piece_to_cluster = {pid: pid for pid in range(num_pieces)}
     
     buddies = find_best_buddies(score_matrix)
