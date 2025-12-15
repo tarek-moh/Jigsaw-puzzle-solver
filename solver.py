@@ -125,6 +125,15 @@ def compute_corr_error(stripA, stripB):
     correlation = np.sum(zA * zB) / min_len
     return correlation
 
+def edge_strength(strip):
+    if strip.ndim == 3:
+        gray = cv2.cvtColor(strip, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = strip
+    grad = sobel(gray, axis=0)
+    return np.mean(np.abs(grad))
+
+
 # ==========================================
 # Normalization & Scoring
 # ==========================================
@@ -194,6 +203,11 @@ def calculate_all_metrics(all_strips):
     norm_ssd = normalize_ssd(ssd_mat)
     norm_corr = normalize_correlation(corr_mat)
     norm_grad = normalize_gradient(grad_mat)
+
+    edge_strengths = np.zeros(total_strips)
+    for i in range(total_strips):
+        edge_strengths[i] = edge_strength(flat_strips[i])
+    edge_strengths /= (np.max(edge_strengths) + 1e-6)
     
     weights = {'ssd': .9, 'corr': .05, 'grad': .05}
     combined = calculate_composite_score({
@@ -202,13 +216,13 @@ def calculate_all_metrics(all_strips):
         'grad': norm_grad 
     }, weights)
     
-    return combined
+    return combined, edge_strengths
 
 # ==========================================
 # Solver Logic
 # ==========================================
 
-def find_best_buddies(score_matrix):
+def find_best_buddies(score_matrix, edge_strengths):
     num_strips = score_matrix.shape[0]
     best_matches = {}
     
@@ -226,7 +240,12 @@ def find_best_buddies(score_matrix):
             if piece_idx == j_piece: continue
             
             if j_side == target_side:
-                score = score_matrix[i, j]
+                raw_score = score_matrix[i, j]
+                confidence = min(edge_strengths[i], edge_strengths[j])
+                # Relaxed penalty: Ensure at least 10% of raw score is preserved even with 0 confidence
+                # This prevents "blind" matching in smooth regions (score=0) which allows arbitrary index-based matching
+                weight = 0.8 + 0.2 * confidence
+                score = raw_score * weight
                 if score > best_score:
                     best_score = score
                     best_j = j
@@ -267,11 +286,11 @@ class JigsawCluster:
             self.pieces[(new_r, new_c)] = pid
             self.id_to_pos[pid] = (new_r, new_c)
 
-def solve_jigsaw_greedy(score_matrix, num_pieces):
+def solve_jigsaw_greedy(score_matrix, num_pieces, edge_strengths):
     clusters = {pid: JigsawCluster(pid) for pid in range(num_pieces)} 
     piece_to_cluster = {pid: pid for pid in range(num_pieces)}
     
-    buddies = find_best_buddies(score_matrix)
+    buddies = find_best_buddies(score_matrix, edge_strengths)
     pq = []
     for s1, s2, score in buddies:
         heapq.heappush(pq, (-score, s1, s2))

@@ -40,7 +40,8 @@ def test_jigsaw_logic():
     score_matrix[p1_top, p0_bottom] = 0.95
     
     print("\nRunning solve_jigsaw_greedy on 2x1 puzzle...")
-    result_pieces = solver.solve_jigsaw_greedy(score_matrix, num_pieces)
+    edge_strengths = np.ones(total_strips)
+    result_pieces = solver.solve_jigsaw_greedy(score_matrix, num_pieces, edge_strengths)
     print("Result Pieces:", result_pieces)
     
     # Invert to get piece -> pos
@@ -85,7 +86,8 @@ def test_jigsaw_logic():
         score_matrix[s1, s2] = 0.9
         score_matrix[s2, s1] = 0.9
         
-    result_pieces = solver.solve_jigsaw_greedy(score_matrix, num_pieces)
+    edge_strengths_2x2 = np.ones(total_strips)
+    result_pieces = solver.solve_jigsaw_greedy(score_matrix, num_pieces, edge_strengths_2x2)
     print("Result Pieces 2x2:", result_pieces)
     
     pos_map_2x2 = {pid: pos for pos, pid in result_pieces.items()}
