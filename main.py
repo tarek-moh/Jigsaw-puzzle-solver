@@ -1,8 +1,8 @@
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
 import solver
-import os
+import solver_new
+
 
 def solve_puzzle(image_path, num_pieces, output_path=None, show_result=False):
     """
