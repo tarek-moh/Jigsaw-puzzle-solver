@@ -111,7 +111,7 @@ class Cluster:
             grid.append("\t".join(row_list))
         return "\n".join(grid)
 
-def solve_greedy_new(score_matrix, num_pieces):
+def solve_greedy(score_matrix, num_pieces):
     length = int(np.ceil(num_pieces ** 0.5))
     clusters = []  # empty list to hold the Cluster objects
 
