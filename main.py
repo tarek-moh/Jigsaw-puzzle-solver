@@ -28,12 +28,12 @@ def solve_puzzle(image_path, num_pieces, output_path=None, show_result=False):
 
     # 5. Calculate Metrics & Composite Score
     print("Calculating metrics and scores...")
-    score_matrix, edge_strengths = solver.calculate_all_metrics(all_strips)
+    score_matrix = solver.calculate_all_metrics(all_strips)
 
     # 6. Solve
     print("Solving puzzle...")
     # The solver returns a dict: {(row, col): piece_id}
-    solution = solver.solve_jigsaw_greedy(score_matrix, num_pieces, edge_strengths)
+    solution = solver.solve_jigsaw_greedy(score_matrix, num_pieces)
 
     if not solution:
         print("Solver failed to return a solution.")
