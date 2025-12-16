@@ -2,6 +2,7 @@ import streamlit as st
 import cv2
 import numpy as np
 import solver
+import secondary_solver
 import os
 import matplotlib.pyplot as plt
 
@@ -157,6 +158,9 @@ def main():
     
     input_source = st.sidebar.radio("Select Input Source", ["Sample Images", "Upload Image"])
     
+    # Solver Algorithm Selection
+    solver_algorithm = st.sidebar.radio("Select Algorithm", ["Primary (Greedy)", "Secondary (Cluster-based)"])
+    
     num_pieces = st.sidebar.selectbox("Number of Pieces", [4, 16, 64], index=1)
     
     image_path = None
@@ -184,7 +188,7 @@ def main():
             else:
                 st.error(f"No sample images found in 'puzzles/Gravity Falls/{folder_name}'.")
         else:
-             st.error(f"Sample directory not found: {sample_dir}")
+            st.error(f"Sample directory not found: {sample_dir}")
              
     elif input_source == "Upload Image":
         st.sidebar.info("""
@@ -291,7 +295,16 @@ def main():
                     score_matrix = solver.calculate_all_metrics(all_strips)
                     
                     # 4. Solve
-                    solution = solver.solve_jigsaw_greedy(score_matrix, num_pieces)
+                    use_secondary = "Secondary" in solver_algorithm
+                    
+                    if use_secondary:
+                        # Secondary Solver (Cluster-based)
+                        solution_obj = secondary_solver.solve_greedy_newer(score_matrix, num_pieces)
+                        # Extract the dictionary format for consistent downstream usage if it's a cluster
+                        solution = solution_obj.cluster_array if solution_obj else {}
+                    else:
+                        # Primary Solver (Greedy)
+                        solution = solver.solve_jigsaw_greedy(score_matrix, num_pieces)
                     
                     end_time = time.time()
                     elapsed_time = end_time - start_time
@@ -300,7 +313,10 @@ def main():
                         st.error("Solver failed to find a consistent solution.")
                     else:
                         # 5. Reconstruct
-                        reconstructed_bgr = solver.reconstruct_image(solution, pieces)
+                        if use_secondary:
+                             reconstructed_bgr = solver.reconstruct_image(solution, pieces)
+                        else:
+                             reconstructed_bgr = solver.reconstruct_image(solution, pieces)
                         
                         if reconstructed_bgr is not None:
                             reconstructed_rgb = cv2.cvtColor(reconstructed_bgr, cv2.COLOR_BGR2RGB)

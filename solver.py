@@ -194,7 +194,7 @@ def calculate_all_metrics(all_strips):
     norm_corr = normalize_correlation(corr_mat)
     norm_grad = normalize_gradient(grad_mat)
     
-    weights = {'ssd': .9, 'corr': .05, 'grad': .05}
+    weights = {'ssd': 0.9, 'corr': 0.05, 'grad': 0.05}
     combined = calculate_composite_score({
         'ssd': norm_ssd,
         'corr': norm_corr,
@@ -309,7 +309,7 @@ def solve_jigsaw_greedy(score_matrix, num_pieces):
         
         shift_r = target_r2 - r2_local
         shift_c = target_c2 - c2_local
-        
+
         if cluster1.is_compatible(cluster2, shift_r, shift_c):
             cluster1.merge(cluster2, shift_r, shift_c)
             for pid in clusters[c2_id].id_to_pos:
