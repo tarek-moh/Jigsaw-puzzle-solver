@@ -1,33 +1,40 @@
-# Jigsaw Puzzle Preprocessing
+# Jigsaw Puzzle Preprocessing and Assembly Framework
 
-This module implements the preprocessing pipeline required for extracting puzzle pieces and preparing their edges for later matching and assembly.
+This project implements a classical image processing pipeline for solving grid-based jigsaw puzzles using edge extraction, similarity metrics, and greedy clustering strategies. The solution explicitly avoids machine learning and relies only on deterministic image processing techniques.
 
 ## Table of Contents
 - [Overview](#overview)
-- [Pipeline](#pipeline)
-- [Techniques Used](#techniques-used)
-- [Outputs](#outputs)
+- [Preprocessing Pipeline](#Preprocessing-Pipeline)
+- [Edge Representation and Matching Metrics](#Edge-Representation-and-Matching-Metrics)
+- [Assembly and Ordering Strategies](#Assembly-and-Ordering-Strategies)
+- [Limitations](#Limitations)
+- [Dataset Assumptions](#Dataset-Assumptions)
+- [Web Interface](#Web-Interface)
+- [References](#References)
 - [Future Work](#future-work)
 
 ---
 
 ## Overview
 
-Given a complete puzzle image, the goal of this phase is to divide the image into equal-size pieces and extract normalized edge strips from each piece. These strips will later be used to compare borders, evaluate similarity, and reconstruct the puzzle in **Phase 2**.
+The goal of this project is to reconstruct jigsaw puzzles (2×2, 4×4, and 8×8) composed of square cartoon pieces. The system is divided into two logical phases:
+- Phase 1 – Preprocessing: Extract puzzle pieces and normalize their edges into a structured, comparable form.
+- Phase 2 – Assembly: Match edges and assemble the puzzle using greedy and cluster-based ordering strategies.
 
-> **Note:** This preprocessing is purely **classical computer vision**. No machine learning or heavy enhancement filters are used to avoid losing detail in cartoon-style puzzle pieces.
+> **Note:** This preprocessing is purely **classical image processing**. No machine learning or heavy enhancement filters are used to avoid losing detail in cartoon-style puzzle pieces.
+This README primarily documents the preprocessing pipeline while also outlining the downstream assembly approaches enabled by it.
 
 ---
 
-## Pipeline
+## Preprocessing Pipeline
 
 The preprocessing pipeline consists of the following steps:
 
 1.  **Image Reading:** Load the main puzzle image using OpenCV.
 2.  **Image Division:** Split the full puzzle into a grid (2×2, 4×4, 8×8) based on the number of pieces.
 3.  **Edge Strip Extraction:** For each piece, extract the top, right, bottom, and left borders.
-4.  **Normalization:** Rotate and flip edge strips so all borders share a common vertical orientation.
-5.  **Optional Feature Computation:**
+4.  **Edge Normalization:** Rotate and flip edge strips so all borders share a common vertical orientation.
+5.  **Optional (weighted later) Feature Computation:**
     * Gradient extraction (Sobel)
     * Strip normalization (z-scores)
     * Baseline edge similarity metrics (SSD, correlation)
@@ -62,20 +69,58 @@ The preprocessing pipeline consists of the following steps:
 
 ---
 
-## Outputs
+## Edge Representation and Matching Metrics
 
-The preprocessing pipeline produces:
+The preprocessing stage prepares data for multiple classical similarity metrics:
+-Sum of Squared Differences (SSD):
+Measures absolute color similarity.
+-Normalized Cross-Correlation:
+Captures texture similarity while being invariant to brightness shifts.
+-Gradient Error (Sobel-based):
+Evaluates structural continuity across edges.
 
-* A list of uniformly cropped puzzle pieces.
-* Four normalized edge strips per piece.
-* Optional gradient representations.
-* Clean, reusable data structures for Phase 2 matching.
-
-These outputs are directly compatible with SSD, correlation, and gradient-based edge similarity functions.
 
 ---
 
-## Future Work
+## Assembly and Ordering Strategies
 
-- [ ] **Automatic noise detection:** Apply enhancement only when needed instead of globally.
-- [ ] **Piece rotation handling:** Extend preprocessing to account for rotated or flipped puzzle pieces.
+The preprocessing outputs enable multiple puzzle assembly strategies:
+
+1- Cluster-Greedy Assembly with Best-Buddy Constraints
+- Each piece starts as its own cluster.
+- Only mutually best-matching edges (“best buddies”) are merged.
+- Clusters grow incrementally while enforcing spatial consistency.
+- Significantly more robust to local ambiguities.
+2- Sequential Piece-Greedy Placement
+- Starts from a seed piece.
+- Adds one piece at a time based on the highest edge similarity.
+- Fast but prone to early irreversible mistakes.
+
+Justification:
+The cluster-based approach delays commitment, reduces false matches on low-information edges, and produces more stable assemblies.
+---
+
+## Limitations
+
+### Low-Entropy Edge Ambiguity
+Edges with little visual variation (e.g., solid colors) often produce artificially high similarity scores. Although edge entropy was investigated as a weighting or filtering mechanism, it proved difficult to tune reliably across all puzzles within the project scope and was not fully integrated.
+
+### No Backtracking
+The greedy nature of the assembly algorithms means that incorrect early merges cannot always be undone. This is a known trade-off for maintaining reasonable runtime.
+
+## Dataset Assumptions
+- Square puzzles only
+- Equal-sized pieces
+- No rotated or flipped pieces
+
+## Web Interface
+A lightweight web interface is provided to visualize puzzle pieces, edge matches, and reconstruction results:
+UI URL:
+https://piecewise.streamlit.app/
+The interface allows interactive inspection of preprocessing outputs and final assembly results.
+
+## References
+Gonzalez & Woods, Digital Image Processing
+
+## Future work
+- [ ] **Entropy based prioritizing:** Humans solve puzzles by matching edges with higher texture first then blank ones, we need to mimic this behaviour.
