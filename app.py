@@ -159,7 +159,7 @@ def main():
     input_source = st.sidebar.radio("Select Input Source", ["Sample Images", "Upload Image"])
     
     # Solver Algorithm Selection
-    solver_algorithm = st.sidebar.radio("Select Algorithm", ["Primary (Greedy)", "Secondary (Cluster-based)"])
+    solver_algorithm = st.sidebar.radio("Select Algorithm", ["Cluster-Greedy Assembly (Best-Buddy Constrained)", "Piece-Greedy Sequential Placement"])
     
     num_pieces = st.sidebar.selectbox("Number of Pieces", [4, 16, 64], index=1)
     
