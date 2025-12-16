@@ -295,7 +295,7 @@ def main():
                     score_matrix = solver.calculate_all_metrics(all_strips)
                     
                     # 4. Solve
-                    use_secondary = "Secondary" in solver_algorithm
+                    use_secondary = "Piece-Greedy" in solver_algorithm
                     
                     if use_secondary:
                         # Secondary Solver (Cluster-based)
