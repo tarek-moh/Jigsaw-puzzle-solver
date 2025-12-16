@@ -179,7 +179,7 @@ def main():
         
         if os.path.exists(sample_dir):
             files = [f for f in os.listdir(sample_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-            files.sort()
+            files = sorted(files, key=lambda x: int(x.split(".")[0]));
             
             if files:
                 selected_file = st.sidebar.selectbox(f"Choose a sample ({num_pieces} pieces)", files)
